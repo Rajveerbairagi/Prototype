@@ -1,0 +1,74 @@
+Build a complete responsive website for a project called “Personalized AI Assistant for RGPV Exam Preparation.”
+
+The website should have a modern, clean Tailwind CSS UI with a focus on simplicity and usability.
+
+🏗️ Project Description
+
+This project provides RGPV university students with an AI assistant to help them prepare for exams. Students can chat with the AI, get explanations of syllabus topics, access previous year papers, and test their knowledge.
+
+🎨 Frontend Requirements
+
+Use HTML, Tailwind CSS, and JavaScript (no React needed).
+
+Create a homepage with:
+
+Project title and tagline.
+
+“Chat with AI” button linking to the chat interface.
+
+“About Project” and “Team” sections.
+
+Create a chat page where users can type questions and get answers from the AI (connected to backend API endpoint /chat).
+
+Include a simple loading animation during AI responses.
+
+Responsive design for both desktop and mobile.
+
+⚙️ Backend (FastAPI)
+
+Use FastAPI to serve endpoints:
+
+/chat: accepts user message and returns AI response using LangChain + Google Generative AI (or OpenAI API).
+
+/syllabus: returns syllabus-based topics for RGPV subjects.
+
+Structure the backend cleanly with routes, models, and utils.
+
+🧩 AI Integration (LangChain)
+
+Integrate LangChain for managing prompts and LLM responses.
+
+Example chain: PromptTemplate + LLMChain for contextual answers.
+
+Allow the AI to respond in a helpful, educational tone.
+
+💾 Optional Features
+
+Add a small “Quiz” section (static for now).
+
+Add “Notes” or “Resources” section linking to RGPV PDFs.
+
+🧱 Folder Structure
+/frontend
+   index.html
+   chat.html
+   /static
+      /css
+      /js
+/backend
+   main.py
+   /routes
+      chat.py
+      syllabus.py
+   /utils
+      ai_chain.py
+
+🚀 Deployment
+
+Make sure the site can run fully in Replit (frontend + backend).
+
+Use a simple run command to start both frontend and FastAPI server.
+
+🎯 Output Goal
+
+Generate the complete code and project structure so that I can directly run and preview the chat-based AI assistant website for RGPV exam preparation inside Replit.
