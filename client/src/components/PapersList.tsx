@@ -1,64 +1,68 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { FileText, Download, Calendar } from "lucide-react";
-
-// todo: remove mock functionality
-const papers = [
-  {
-    id: "1",
-    title: "Data Structures - Mid Term Exam",
-    subject: "CS401",
-    year: "2024",
-    semester: "5th",
-    size: "2.3 MB"
-  },
-  {
-    id: "2",
-    title: "Database Management - Final Exam",
-    subject: "CS402",
-    year: "2023",
-    semester: "5th",
-    size: "1.8 MB"
-  },
-  {
-    id: "3",
-    title: "Operating Systems - Mid Term",
-    subject: "CS403",
-    year: "2024",
-    semester: "5th",
-    size: "2.1 MB"
-  },
-  {
-    id: "4",
-    title: "Data Structures - Final Exam",
-    subject: "CS401",
-    year: "2023",
-    semester: "5th",
-    size: "2.5 MB"
-  },
-  {
-    id: "5",
-    title: "Database Management - Mid Term",
-    subject: "CS402",
-    year: "2024",
-    semester: "5th",
-    size: "1.9 MB"
-  },
-  {
-    id: "6",
-    title: "Operating Systems - Final Exam",
-    subject: "CS403",
-    year: "2023",
-    semester: "5th",
-    size: "2.4 MB"
-  }
-];
+import { FileText, Download, Calendar, Loader2 } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import type { PreviousYearPaper } from "@shared/schema";
+import { useToast } from "@/hooks/use-toast";
 
 export default function PapersList() {
-  const handleDownload = (paperId: string) => {
+  const { toast } = useToast();
+  
+  const { data: papers, isLoading, error } = useQuery<PreviousYearPaper[]>({
+    queryKey: ["/api/papers"],
+  });
+
+  const handleDownload = (paperId: string, title: string) => {
     console.log(`Downloading paper ${paperId}`);
+    toast({
+      title: "Download Started",
+      description: `Downloading "${title}"...`,
+    });
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <h2 className="text-3xl font-bold mb-2">Previous Year Papers</h2>
+          <p className="text-muted-foreground">
+            Download and practice with previous examination papers
+          </p>
+        </div>
+        <div className="text-center py-12">
+          <p className="text-destructive font-semibold mb-2">Failed to load papers</p>
+          <p className="text-muted-foreground">
+            {error instanceof Error ? error.message : "An error occurred"}
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!papers || papers.length === 0) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <h2 className="text-3xl font-bold mb-2">Previous Year Papers</h2>
+          <p className="text-muted-foreground">
+            Download and practice with previous examination papers
+          </p>
+        </div>
+        <div className="text-center text-muted-foreground py-12">
+          No papers available at the moment
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -105,7 +109,7 @@ export default function PapersList() {
               </div>
 
               <Button
-                onClick={() => handleDownload(paper.id)}
+                onClick={() => handleDownload(paper.id, paper.title)}
                 variant="outline"
                 className="gap-2"
                 data-testid={`button-download-${paper.id}`}

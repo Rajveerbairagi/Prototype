@@ -23,7 +23,12 @@ Keep your responses concise but thorough. Focus on helping students learn and un
       config: {
         systemInstruction: systemPrompt,
       },
-      contents: userMessage,
+      contents: [
+        {
+          role: "user",
+          parts: [{ text: userMessage }]
+        }
+      ],
     });
 
     return response.text || "I apologize, but I couldn't generate a response. Please try again.";

@@ -3,11 +3,21 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Send, Bot, User } from "lucide-react";
 import { Card } from "@/components/ui/card";
+import { useMutation } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
 
 interface Message {
   id: string;
   role: "user" | "assistant";
   content: string;
+}
+
+interface ChatResponse {
+  id: string;
+  role: "assistant";
+  content: string;
+  timestamp: Date;
 }
 
 export default function ChatInterface() {
@@ -19,8 +29,8 @@ export default function ChatInterface() {
     }
   ]);
   const [input, setInput] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const { toast } = useToast();
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -30,8 +40,31 @@ export default function ChatInterface() {
     scrollToBottom();
   }, [messages]);
 
+  const chatMutation = useMutation({
+    mutationFn: async (message: string) => {
+      const response = await apiRequest("POST", "/api/chat", { message });
+      const data: ChatResponse = await response.json();
+      return data;
+    },
+    onSuccess: (data) => {
+      const aiMessage: Message = {
+        id: data.id,
+        role: "assistant",
+        content: data.content
+      };
+      setMessages(prev => [...prev, aiMessage]);
+    },
+    onError: (error) => {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to get AI response"
+      });
+    }
+  });
+
   const handleSend = async () => {
-    if (!input.trim() || isLoading) return;
+    if (!input.trim() || chatMutation.isPending) return;
 
     const userMessage: Message = {
       id: Date.now().toString(),
@@ -40,19 +73,9 @@ export default function ChatInterface() {
     };
 
     setMessages(prev => [...prev, userMessage]);
+    const messageToSend = input;
     setInput("");
-    setIsLoading(true);
-
-    // todo: remove mock functionality - Simulate AI response
-    setTimeout(() => {
-      const aiMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        role: "assistant",
-        content: `I understand you're asking about "${input}". This is a demo response. In the full version, I'll provide detailed explanations based on RGPV syllabus and help you prepare effectively for your exams.`
-      };
-      setMessages(prev => [...prev, aiMessage]);
-      setIsLoading(false);
-    }, 1500);
+    chatMutation.mutate(messageToSend);
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -99,7 +122,7 @@ export default function ChatInterface() {
           </div>
         ))}
 
-        {isLoading && (
+        {chatMutation.isPending && (
           <div className="flex gap-3 justify-start">
             <div className="flex-shrink-0">
               <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center">
@@ -128,10 +151,11 @@ export default function ChatInterface() {
             placeholder="Ask me anything about RGPV syllabus, exams, or topics..."
             className="resize-none min-h-[60px] text-base"
             data-testid="input-chat"
+            disabled={chatMutation.isPending}
           />
           <Button 
             onClick={handleSend}
-            disabled={!input.trim() || isLoading}
+            disabled={!input.trim() || chatMutation.isPending}
             className="px-6 rounded-lg"
             data-testid="button-send"
           >
