@@ -38,7 +38,7 @@ export default function Hero() {
 
           <p className="text-sm text-muted-foreground flex items-center justify-center gap-2">
             <span className="inline-block w-2 h-2 bg-primary rounded-full animate-pulse" />
-            Trusted by 500+ RGPV Students
+            Trusted by 1k+ RGPV Students
           </p>
 
           <div className="mt-12">
